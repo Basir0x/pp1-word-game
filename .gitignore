@@ -1,0 +1,7 @@
+target/
+.idea/
+*.iml
+
+# Hemliga inställningar: API-nyckeln ska aldrig hamna i arkivet.
+env
+.env
