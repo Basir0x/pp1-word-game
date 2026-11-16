@@ -1,18 +1,22 @@
 package ax.ha.pp1.wordgame;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * En spelomgång: ett hemligt ord och högst sex gissningar.
  * Klassen vet ingenting om dialogrutor.
- *
- * Kodskelettet kompilerar men är inte implementerat, och det har inga fält:
- * vilka fält klassen behöver bestämmer du själv i del B. Signaturerna får inte ändras.
  */
 public class Game {
     public static final int MAX_GUESSES = 6;
 
+    private final String answer;
+    private final List<GuessResult> guesses = new ArrayList<>();
+    private boolean won;
+
     /** Startar en omgång. Svaret hämtas med source.next(). */
     public Game(WordSource source) {
-        // TODO del B
+        this.answer = source.next();
     }
 
     /**
@@ -21,27 +25,36 @@ public class Game {
      * spelet redan är slut.
      */
     public GuessResult guess(String word) {
-        throw new UnsupportedOperationException("Inte implementerad än");
+        if (isOver()) {
+            throw new IllegalStateException("Spelet är slut");
+        }
+        if (!Evaluator.isValidWord(word)) {
+            throw new IllegalArgumentException("Ogiltigt ord: " + word);
+        }
+        GuessResult result = Evaluator.evaluate(word, answer);
+        guesses.add(result);
+        won = result.isCorrect();
+        return result;
     }
 
     /** Sant om senaste gissningen var rätt. */
     public boolean isWon() {
-        throw new UnsupportedOperationException("Inte implementerad än");
+        return won;
     }
 
     /** Sant om spelet är slut: vunnet eller sex gissningar gjorda. */
     public boolean isOver() {
-        throw new UnsupportedOperationException("Inte implementerad än");
+        return won || guesses.size() >= MAX_GUESSES;
     }
 
     /** Antal gjorda gissningar. */
     public int getGuessCount() {
-        throw new UnsupportedOperationException("Inte implementerad än");
+        return guesses.size();
     }
 
     /** Antal gissningar kvar. */
     public int getGuessesLeft() {
-        throw new UnsupportedOperationException("Inte implementerad än");
+        return MAX_GUESSES - guesses.size();
     }
 
     /**
@@ -49,12 +62,19 @@ public class Game {
      * inte kan avslöjas för tidigt.
      */
     public String getAnswer() {
-        throw new UnsupportedOperationException("Inte implementerad än");
+        if (!isOver()) {
+            throw new IllegalStateException("Spelet är inte slut");
+        }
+        return answer;
     }
 
     /** Spelbrädet: en rad per gissning i formen från GuessResult, med radbrytning efter varje rad. */
     @Override
     public String toString() {
-        throw new UnsupportedOperationException("Inte implementerad än");
+        StringBuilder board = new StringBuilder();
+        for (GuessResult result : guesses) {
+            board.append(result).append('\n');
+        }
+        return board.toString();
     }
 }
