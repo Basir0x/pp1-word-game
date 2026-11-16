@@ -8,8 +8,11 @@ import javax.swing.JOptionPane;
  */
 public class Main {
 
+    /** Färre ord än så här från modellen är för tunt att spela med. */
+    private static final int MIN_WORDS = 5;
+
     void main() {
-        Game game = new Game(new WordSource(WordList.all()));
+        Game game = new Game(wordSource());
         String info = "Gissa ett svenskt ord med fem bokstäver.";
 
         while (!game.isOver()) {
@@ -40,5 +43,35 @@ public class Main {
             JOptionPane.showMessageDialog(null,
                     game + "\nInga försök kvar. Rätt ord var " + game.getAnswer() + ".");
         }
+    }
+
+    /**
+     * Ord från språkmodellen om den är konfigurerad och svarar, annars ordlistan.
+     * Spelet fungerar alltså även utan nät och utan VPN.
+     */
+    private static WordSource wordSource() {
+        if (modelIsConfigured()) {
+            try {
+                String[] words = LlmWords.fetch(new LlmClient(), 20);
+                if (words.length >= MIN_WORDS) {
+                    return new WordSource(words);
+                }
+                message("Språkmodellen gav för få ord. Spelet använder ordlistan i stället.");
+            } catch (IllegalStateException e) {
+                message("Kunde inte nå språkmodellen. Spelet använder ordlistan i stället.");
+            }
+        }
+        return new WordSource(WordList.all());
+    }
+
+    /** Sant om både adressen och modellnamnet finns i miljövariablerna. */
+    private static boolean modelIsConfigured() {
+        String url = System.getenv("PP1_LLM_URL");
+        String model = System.getenv("PP1_LLM_MODEL");
+        return url != null && !url.isBlank() && model != null && !model.isBlank();
+    }
+
+    private static void message(String text) {
+        JOptionPane.showMessageDialog(null, text);
     }
 }
