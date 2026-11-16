@@ -14,7 +14,9 @@ public class LlmWords {
      * Kastar IllegalStateException, via LlmClient, om modellen inte går att nå.
      */
     public static String[] fetch(LlmClient client, int count) {
-        throw new UnsupportedOperationException("Inte implementerad än");
+        String prompt = "Ge mig " + count + " svenska ord med exakt fem bokstäver. "
+                + "Skriv ett ord per rad, inga nummer och ingen annan text.";
+        return parse(client.ask(prompt));
     }
 
     /** Alla giltiga ord i texten, med versaler, i den ordning de står. Ogiltiga hoppas över. Kan vara tom. */

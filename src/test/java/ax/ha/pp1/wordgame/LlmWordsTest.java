@@ -48,4 +48,17 @@ class LlmWordsTest {
     void parseSkipsWordsWithCharactersOutsideTheAlphabet() {
         assertArrayEquals(new String[] {"KALLA"}, LlmWords.parse("KALÉA KALLA"));
     }
+
+    @Test
+    void fetchParsesTheWordsInTheAnswer() {
+        // En falsk klient som svarar utan att gå ut på nätet, så att testet inte anropar modellen.
+        LlmClient fake = new LlmClient("http://example.invalid", "testmodell", null) {
+            @Override
+            public String ask(String prompt) {
+                return "1. KALLA\n2. påron";
+            }
+        };
+
+        assertArrayEquals(new String[] {"KALLA", "PÅRON"}, LlmWords.fetch(fake, 2));
+    }
 }
